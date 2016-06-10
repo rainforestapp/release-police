@@ -4,4 +4,7 @@ This service can be used to periodically checks a list of repos and if the delta
 
 ## Configuring
 
-If running on Heroku, you'll need to set the environment variables listed in ``.env_sample``. You need a github key (that can read your repos), a pagerduty key, to set a time (we use 120, for 2 hours), plus a list of repo's to monitor.
+If running on Heroku, you'll need to:
+
+1. set the environment variables listed in ``.env_sample``. You need a github key (that can read your repos), a pagerduty key, to set a time (we use 120, for 2 hours), plus a list of repo's to monitor.
+2. use the heroku scheduler addon to run "bundle exec ruby main.rb" as often as you want - we do every 10m.

@@ -35,7 +35,7 @@ end
 
 repos.each do |repo|
   begin
-  	check_repo(github, pagerduty, repo, warn_time)
+    check_repo(github, pagerduty, repo, warn_time)
   rescue Octokit::NotFound => e
     puts "#{repo} -- could not find. #{e}"
   end
