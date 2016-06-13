@@ -23,7 +23,10 @@ def check_repo(github, pagerduty, repo, warn_time)
   master_last = get_last(master)
   develop_last = get_last(develop)
 
-  time_since_merge = ((develop_last - master_last) / 60).to_i
+  return if master_last > develop_last
+
+  # Time since last merged to develop
+  time_since_merge = ((Time.now - develop_last) / 60).to_i
 
   if time_since_merge > warn_time
     puts "#{repo} bad! code is #{time_since_merge} minutes old and not released."
