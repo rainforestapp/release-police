@@ -16,6 +16,10 @@ def get_last(branch)
   branch['commit']['commit']['author']['date']
 end
 
+def incident_key(repo)
+  "release-police-#{repo}"
+end
+
 def check_repo(github, pagerduty, repo, warn_time)
   develop = github.branch(repo, "develop")
   master = github.branch(repo, "master")
@@ -26,7 +30,7 @@ def check_repo(github, pagerduty, repo, warn_time)
   if master_last > develop_last
     time_since_merge = ((develop_last - master_last) / 60).to_i
     puts "#{repo} ok, was released after #{time_since_merge.abs} minutes"
-    incident = pagerduty.get_incident("release-police-#{repo}")
+    incident = pagerduty.get_incident(incident_key(repo))
     incident.resolve unless incident.nil?
     return
   end
@@ -36,9 +40,11 @@ def check_repo(github, pagerduty, repo, warn_time)
 
   if time_since_merge > warn_time
     puts "#{repo} bad! code is #{time_since_merge} minutes old and not released."
-    pagerduty.trigger("#{repo} has unreleased commits for #{time_since_merge} mintues.", incident_key: "release-police-#{repo}")
+    pagerduty.trigger("#{repo} has unreleased commits for #{time_since_merge} mintues.", incident_key: incident_key(repo))
   end
 end
+
+puts "Checking: #{repos.join(", ")}"
 
 repos.each do |repo|
   begin
