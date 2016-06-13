@@ -23,13 +23,20 @@ def check_repo(github, pagerduty, repo, warn_time)
   master_last = get_last(master)
   develop_last = get_last(develop)
 
-  time_since_merge = ((develop_last - master_last) / 60).to_i
+  if master_last > develop_last
+    time_since_merge = ((develop_last - master_last) / 60).to_i
+    puts "#{repo} ok, was released after #{time_since_merge.abs} minutes"
+    incident = pagerduty.get_incident("release-police-#{repo}")
+    incident.resolve unless incident.nil?
+    return
+  end
+
+  # Time since last merged to develop
+  time_since_merge = ((Time.now - develop_last) / 60).to_i
 
   if time_since_merge > warn_time
     puts "#{repo} bad! code is #{time_since_merge} minutes old and not released."
-    pagerduty.trigger("#{repo} has unreleased commits for #{time_since_merge} mintues.", incident_key: develop['commit']['sha'])
-  else
-    puts "#{repo} ok, was released after #{time_since_merge.abs} minutes"
+    pagerduty.trigger("#{repo} has unreleased commits for #{time_since_merge} mintues.", incident_key: "release-police-#{repo}")
   end
 end
 
