@@ -39,8 +39,18 @@ def check_repo(github, pagerduty, repo, warn_time)
   time_since_merge = ((Time.now - develop_last) / 60).to_i
 
   if time_since_merge > warn_time
-    puts "#{repo} bad! code is #{time_since_merge} minutes old and not released."
-    pagerduty.trigger("#{repo} has unreleased commits for #{time_since_merge} mintues.", incident_key: incident_key(repo))
+    puts "#{repo} bad! code is #{time_since_merge} minutes old and not released"
+    pagerduty.trigger(
+      "#{repo} has unreleased commits for #{time_since_merge} minutes",
+      incident_key: incident_key(repo),
+      contexts: [
+        {
+          'type': 'link',
+          'text': 'Runbook',
+          'href': 'https://github.com/rainforestapp/Rainforest/wiki/Release-Police:-XXX-has-unreleased-commits-for-YYY-minutes'
+        }
+      ]
+    )
   end
 end
 
